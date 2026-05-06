@@ -1,15 +1,16 @@
 {
   "version": 2,
-  "dgSpecHash": "DHvOucU7rwE=",
+  "dgSpecHash": "eqjdbb83jVI=",
   "success": true,
   "projectFilePath": "/Users/JaneChang/Desktop/Janet/CodeProject/restaurantMap/FoodMapServer/FoodMapServer.csproj",
   "expectedPackageFiles": [
     "/Users/JaneChang/.nuget/packages/csvhelper/33.1.0/csvhelper.33.1.0.nupkg.sha512",
     "/Users/JaneChang/.nuget/packages/dnsclient/1.6.1/dnsclient.1.6.1.nupkg.sha512",
     "/Users/JaneChang/.nuget/packages/dotenv.net/4.0.2/dotenv.net.4.0.2.nupkg.sha512",
-    "/Users/JaneChang/.nuget/packages/microsoft.aspnetcore.openapi/10.0.3/microsoft.aspnetcore.openapi.10.0.3.nupkg.sha512",
+    "/Users/JaneChang/.nuget/packages/microsoft.aspnetcore.openapi/8.0.0/microsoft.aspnetcore.openapi.8.0.0.nupkg.sha512",
     "/Users/JaneChang/.nuget/packages/microsoft.extensions.logging.abstractions/2.0.0/microsoft.extensions.logging.abstractions.2.0.0.nupkg.sha512",
     "/Users/JaneChang/.nuget/packages/microsoft.netcore.platforms/5.0.0/microsoft.netcore.platforms.5.0.0.nupkg.sha512",
+    "/Users/JaneChang/.nuget/packages/microsoft.openapi/1.4.3/microsoft.openapi.1.4.3.nupkg.sha512",
     "/Users/JaneChang/.nuget/packages/microsoft.win32.registry/5.0.0/microsoft.win32.registry.5.0.0.nupkg.sha512",
     "/Users/JaneChang/.nuget/packages/mongodb.bson/3.8.0/mongodb.bson.3.8.0.nupkg.sha512",
     "/Users/JaneChang/.nuget/packages/mongodb.driver/3.8.0/mongodb.driver.3.8.0.nupkg.sha512",
