@@ -1,1 +1,16 @@
-preprocess/
+# --- 後端 FoodMapServer 排除項目 ---
+FoodMapServer/appsettings.json
+FoodMapServer/.env
+FoodMapServer/bin/
+FoodMapServer/obj/
+
+# --- 前端 FoodMapClient 排除項目 ---
+FoodMapClient/.env
+FoodMapClient/.env.local
+FoodMapClient/node_modules/
+FoodMapClient/dist/
+
+# --- 通用排除項目 ---
+.vs/
+.vscode/
+*.user
