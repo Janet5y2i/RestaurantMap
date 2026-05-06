@@ -1,12 +1,12 @@
 using FoodMapServer.Models;
 using FoodMapServer.Services;
 using System.Text.Json;
-using dotenv.net; // 記得引用這個命名空間
+//using dotenv.net; // 記得引用這個命名空間
 using MongoDB.Driver;
 var builder = WebApplication.CreateBuilder(args);
 
 
-DotEnv.Load();
+//DotEnv.Load();
 // get the MongoDB connection string from environment variable
 var connectionString = Environment.GetEnvironmentVariable("MONGODB_CONNECTION_STRING");
 
@@ -14,6 +14,8 @@ if (string.IsNullOrEmpty(connectionString) || connectionString.Contains("FoodMap
 {
     throw new Exception("錯誤：未設定資料庫連線字串。請檢查環境變數。");
 }
+
+builder.Configuration["FoodMapDatabase:ConnectionString"] = connectionString;
 
 // 註冊 MongoDB 客戶端
 builder.Services.AddSingleton<IMongoClient>(new MongoClient(connectionString));
