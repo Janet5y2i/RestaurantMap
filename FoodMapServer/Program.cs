@@ -16,9 +16,12 @@ if (string.IsNullOrEmpty(connectionString) || connectionString.Contains("FoodMap
 }
 
 builder.Configuration["FoodMapDatabase:ConnectionString"] = connectionString;
+builder.Configuration["FoodMapDatabase:DatabaseName"] = "FoodMapDatabase";
+builder.Configuration["FoodMapDatabase:RestaurantsCollectionName"] = "Restaurants";
 
 // 註冊 MongoDB 客戶端
 builder.Services.AddSingleton<IMongoClient>(new MongoClient(connectionString));
+
 
 // 1. 註冊資料庫設定與服務
 builder.Services.Configure<FoodMapDatabaseSettings>(
