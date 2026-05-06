@@ -46,7 +46,7 @@
           "dependencies": {
             "CsvHelper": {
               "target": "Package",
-              "version": "[33.1.0, )"
+              "version": "[32.0.3, )"
             },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",

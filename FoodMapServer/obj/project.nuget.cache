@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "eqjdbb83jVI=",
+  "dgSpecHash": "hxTuXXDZyTc=",
   "success": true,
   "projectFilePath": "/Users/JaneChang/Desktop/Janet/CodeProject/restaurantMap/FoodMapServer/FoodMapServer.csproj",
   "expectedPackageFiles": [
-    "/Users/JaneChang/.nuget/packages/csvhelper/33.1.0/csvhelper.33.1.0.nupkg.sha512",
+    "/Users/JaneChang/.nuget/packages/csvhelper/32.0.3/csvhelper.32.0.3.nupkg.sha512",
     "/Users/JaneChang/.nuget/packages/dnsclient/1.6.1/dnsclient.1.6.1.nupkg.sha512",
     "/Users/JaneChang/.nuget/packages/dotenv.net/4.0.2/dotenv.net.4.0.2.nupkg.sha512",
     "/Users/JaneChang/.nuget/packages/microsoft.aspnetcore.openapi/8.0.0/microsoft.aspnetcore.openapi.8.0.0.nupkg.sha512",
