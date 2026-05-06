@@ -14,3 +14,4 @@ FoodMapClient/dist/
 .vs/
 .vscode/
 *.user
+preprocess/
