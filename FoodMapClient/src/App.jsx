@@ -118,11 +118,6 @@ function App() {
   const [selectPriceRange, setSelectPriceRange] = useState([]);
   const [isMapFull, setIsMapFull] = useState(false);
 
-  // 1. 從原始資料中抽取出選單項目
-  const categories = [...new Set(restaurants.map(res => res.type))].sort();
-  const areas = [...new Set(restaurants.map(res => res.area))].sort();
-  const priceRanges = [...new Set(restaurants.map(res => res.priceRange))].sort();
-
   // 核心修正 1：【必須補上這三行】轉換成 react-select 需要的 { value, label } 格式
   const categoryOptions = categories.map(cat => ({ value: cat, label: cat }));
   const areaOptions = areas.map(area => ({ value: area, label: area }));
