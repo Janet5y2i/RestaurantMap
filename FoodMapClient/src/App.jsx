@@ -7,7 +7,9 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useMap } from 'react-leaflet'; 
 import.meta.env.VITE_API_URL
+
 import Select from  "react-select"
+
 
 // 修正 Leaflet 預設圖標（icon）在 React/Vite 中顯示不出來的小問題
 import L from 'leaflet';
@@ -107,22 +109,44 @@ function MapRecenter({ lat, lng }) {
 }
 
 
-function App() {
-  const [count, setCount] = useState(0)
+const [count, setCount] = useState(0)
   const [restaurants, setRestaurants] = useState([])
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
   const [restaurantDetail, setRestaurantDetail] = useState(null);
   const [keyWord, setKeyword] = useState("");
-  const [selectCategory, setSelectCategory] = useState("");
-  const [selectArea, setSelectArea] = useState("");
-  const [selectPriceRange, setSelectPriceRange] = useState("");
+  const [selectCategory, setSelectCategory] = useState([]);
+  const [selectArea, setSelectArea] = useState([]);
+  const [selectPriceRange, setSelectPriceRange] = useState([]);
   const [isMapFull, setIsMapFull] = useState(false);
+
+  // 【步驟 1】先從 restaurants 基礎資料中，提煉出純字串陣列（必須在最上面！）
+  const categories = [...new Set(restaurants.map(res => res.type))].sort();
+  const areas = [...new Set(restaurants.map(res => res.area))].sort();
+  const priceRanges = [...new Set(restaurants.map(res => res.priceRange))].sort();
+
+  // 【步驟 2】有了 categories 之後，才能接著把它轉換成 react-select 的 { value, label } 物件
+  const categoryOptions = categories.map(cat => ({ value: cat, label: cat }));
+  const areaOptions = areas.map(area => ({ value: area, label: area }));
+  const priceOptions = priceRanges.map(price => ({ value: price, label: price }));
+
+  // 【步驟 3】多選過濾邏輯
   const filteredRestaurants = restaurants.filter(res => {
-    const matchesKeyword = res.name.toLowerCase().includes(keyWord.toLowerCase()) || res.summary?.toLowerCase().includes(keyWord.toLowerCase()) || res.description?.toLowerCase().includes(keyWord.toLowerCase()) || res.recommendedDishes?.some(dish => dish.toLowerCase().includes(keyWord.toLowerCase()));
-    const matchesCategory = (selectCategory === "" || selectCategory === "All") ? true : res.type === selectCategory;
-    const matchesArea = (selectArea === "" || selectArea === "All") ? true : res.area === selectArea;
-    const matchesPriceRange = (selectPriceRange === "" || selectPriceRange === "All") ? true : res.priceRange === selectPriceRange;
-    return matchesKeyword && matchesCategory && matchesArea && matchesPriceRange ;
+    const matchesKeyword = res.name.toLowerCase().includes(keyWord.toLowerCase()) || 
+                          res.summary?.toLowerCase().includes(keyWord.toLowerCase());
+
+    const currentCategories = selectCategory || [];
+    const matchesCategory = currentCategories.length === 0 || 
+                            currentCategories.some(item => item.value === res.type);
+
+    const currentAreas = selectArea || [];
+    const matchesArea = currentAreas.length === 0 || 
+                        currentAreas.some(item => item.value === res.area);
+
+    const currentPrices = selectPriceRange || [];
+    const matchesPriceRange = currentPrices.length === 0 || 
+                             currentPrices.some(item => item.value === res.priceRange);
+
+    return matchesKeyword && matchesCategory && matchesArea && matchesPriceRange;
   });
   const categories = [...new Set(restaurants.map(res => res.type))].sort();
   const areas = [...new Set(restaurants.map(res => res.area))].sort();
@@ -168,60 +192,59 @@ function App() {
 
     </div>
   </div>
-
-    <div className="container-fluid p-0">
-      <div className="row mb-4 p-3 bg-light rounded shadow-sm">
-        <div className="col-md-2">
-          <input type="text" className="form-control" 
-                  placeholder="搜尋餐廳名稱、簡介、推薦菜色..." 
-                  value={keyWord} 
-                  onChange={(e) => setKeyword(e.target.value)} />
-        </div>
-
-      <div className="col-md-2">
-          
-          <select
-            className="form-select border-primary-subtle shadow-sm"
-            value={selectCategory}
-            onChange={(e) => setSelectCategory(e.target.value)}
-          > 
-          <option value="All">--- 選擇餐廳類別 ---</option>
-            {categories.map(cat => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
-          </select>
-      </div>
-      <div className="col-md-2">
-          <select
-            className="form-select border-primary-subtle shadow-sm"
-            value={selectArea}
-            onChange={(e) => setSelectArea(e.target.value)}
-          >
-            <option value="All">--- 選擇地區 ---</option>
-            {areas.map(area => (
-              <option key={area} value={area}>{area}</option>
-            ))}
-          </select>
-      </div>
-      <div className="col-md-2">
-            <select
-              className="form-select border-primary-subtle shadow-sm"
-              value={selectPriceRange}
-              onChange={(e) => setSelectPriceRange(e.target.value)}
-            >
-              <option value="All">--- 選擇價位 ---</option>
-              {priceRanges.map(price =>(
-                <option key={price} value={price}>{price}</option>
-              ))
-
-              }
-              
-            </select>
-              
-      </div>
+<div className="container-fluid p-0">
+  <div className="row mb-4 p-3 bg-light rounded shadow-sm align-items-center">
+    {/* 1. 關鍵字搜尋 */}
+    <div className="col-md-3">
+      <input 
+        type="text" 
+        className="form-control" 
+        placeholder="搜尋餐廳名稱、簡介..." 
+        value={keyWord} 
+        onChange={(e) => setKeyword(e.target.value)} 
+      />
     </div>
 
+    {/* 2. 餐廳類別多選 */}
+    <div className="col-md-3">
+      <Select
+        isMulti                  // 啟用多選
+        isClearable              // 啟用一鍵清除 (Mentor 提的 Clear 功能)
+        options={categoryOptions} // 傳入格式化後的選項
+        value={selectCategory}   // 綁定狀態
+        onChange={setSelectCategory} // 當選取改變時，直接更新狀態（它會自己傳入新陣列）
+        placeholder="--- 選擇餐廳類別 ---"
+        className="shadow-sm"
+      />
     </div>
+
+    {/* 3. 地區多選 */}
+    <div className="col-md-3">
+      <Select
+        isMulti
+        isClearable
+        options={areaOptions}
+        value={selectArea}
+        onChange={setSelectArea}
+        placeholder="--- 選擇地區 ---"
+        className="shadow-sm"
+      />
+    </div>
+
+    {/* 4. 價位多選 */}
+    <div className="col-md-3">
+      <Select
+        isMulti
+        isClearable
+        options={priceOptions}
+        value={selectPriceRange}
+        onChange={setSelectPriceRange}
+        placeholder="--- 選擇價位 ---"
+        className="shadow-sm"
+      />
+    </div>
+  </div>
+</div>
       <div className="row"> 
         
         {/* left hand side - restaurant list */}
