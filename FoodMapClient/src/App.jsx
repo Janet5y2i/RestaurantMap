@@ -113,25 +113,37 @@ function App() {
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
   const [restaurantDetail, setRestaurantDetail] = useState(null);
   const [keyWord, setKeyword] = useState("");
-  const [selectCategory, setSelectCategory] = useState([]);
+  const [selectCategory, setSelectCategory] = useState([]); // 清空時可能是 null
   const [selectArea, setSelectArea] = useState([]);
   const [selectPriceRange, setSelectPriceRange] = useState([]);
   const [isMapFull, setIsMapFull] = useState(false);
+
+  // 1. 從原始資料中抽取出選單項目
+  const categories = [...new Set(restaurants.map(res => res.type))].sort();
+  const areas = [...new Set(restaurants.map(res => res.area))].sort();
+  const priceRanges = [...new Set(restaurants.map(res => res.priceRange))].sort();
+
+  // 核心修正 1：【必須補上這三行】轉換成 react-select 需要的 { value, label } 格式
+  const categoryOptions = categories.map(cat => ({ value: cat, label: cat }));
+  const areaOptions = areas.map(area => ({ value: area, label: area }));
+  const priceOptions = priceRanges.map(price => ({ value: price, label: price }));
+
+  // 核心修正 2：在過濾時，使用 (selectCategory || []) 來防呆，避免清除時 null.length 崩潰
   const filteredRestaurants = restaurants.filter(res => {
     const matchesKeyword = res.name.toLowerCase().includes(keyWord.toLowerCase()) || 
                           res.summary?.toLowerCase().includes(keyWord.toLowerCase());
 
-    // 【修改】改成檢查 selectCategory 裡的 value 物件
-    const matchesCategory = selectCategory.length === 0 || 
-                            selectCategory.some(item => item.value === res.type);
+    const currentCategories = selectCategory || [];
+    const matchesCategory = currentCategories.length === 0 || 
+                            currentCategories.some(item => item.value === res.type);
 
-    // 【修改】地區多選
-    const matchesArea = selectArea.length === 0 || 
-                        selectArea.some(item => item.value === res.area);
+    const currentAreas = selectArea || [];
+    const matchesArea = currentAreas.length === 0 || 
+                        currentAreas.some(item => item.value === res.area);
 
-    // 【修改】價位多選
-    const matchesPriceRange = selectPriceRange.length === 0 || 
-                            selectPriceRange.some(item => item.value === res.priceRange);
+    const currentPrices = selectPriceRange || [];
+    const matchesPriceRange = currentPrices.length === 0 || 
+                              currentPrices.some(item => item.value === res.priceRange);
 
     return matchesKeyword && matchesCategory && matchesArea && matchesPriceRange;
   });
