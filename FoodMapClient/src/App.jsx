@@ -107,23 +107,27 @@ function MapRecenter({ lat, lng }) {
 }
 
 
-function App() {
-  const [count, setCount] = useState(0)
+const [count, setCount] = useState(0)
   const [restaurants, setRestaurants] = useState([])
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
   const [restaurantDetail, setRestaurantDetail] = useState(null);
   const [keyWord, setKeyword] = useState("");
-  const [selectCategory, setSelectCategory] = useState([]); // 清空時可能是 null
+  const [selectCategory, setSelectCategory] = useState([]);
   const [selectArea, setSelectArea] = useState([]);
   const [selectPriceRange, setSelectPriceRange] = useState([]);
   const [isMapFull, setIsMapFull] = useState(false);
 
-  // 核心修正 1：【必須補上這三行】轉換成 react-select 需要的 { value, label } 格式
+  // 【步驟 1】先從 restaurants 基礎資料中，提煉出純字串陣列（必須在最上面！）
+  const categories = [...new Set(restaurants.map(res => res.type))].sort();
+  const areas = [...new Set(restaurants.map(res => res.area))].sort();
+  const priceRanges = [...new Set(restaurants.map(res => res.priceRange))].sort();
+
+  // 【步驟 2】有了 categories 之後，才能接著把它轉換成 react-select 的 { value, label } 物件
   const categoryOptions = categories.map(cat => ({ value: cat, label: cat }));
   const areaOptions = areas.map(area => ({ value: area, label: area }));
   const priceOptions = priceRanges.map(price => ({ value: price, label: price }));
 
-  // 核心修正 2：在過濾時，使用 (selectCategory || []) 來防呆，避免清除時 null.length 崩潰
+  // 【步驟 3】多選過濾邏輯
   const filteredRestaurants = restaurants.filter(res => {
     const matchesKeyword = res.name.toLowerCase().includes(keyWord.toLowerCase()) || 
                           res.summary?.toLowerCase().includes(keyWord.toLowerCase());
@@ -138,7 +142,7 @@ function App() {
 
     const currentPrices = selectPriceRange || [];
     const matchesPriceRange = currentPrices.length === 0 || 
-                              currentPrices.some(item => item.value === res.priceRange);
+                             currentPrices.some(item => item.value === res.priceRange);
 
     return matchesKeyword && matchesCategory && matchesArea && matchesPriceRange;
   });
