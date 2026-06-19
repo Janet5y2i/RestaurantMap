@@ -112,17 +112,25 @@ function App() {
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
   const [restaurantDetail, setRestaurantDetail] = useState(null);
   const [keyWord, setKeyword] = useState("");
-  const [selectCategory, setSelectCategory] = useState("");
-  const [selectArea, setSelectArea] = useState("");
-  const [selectPriceRange, setSelectPriceRange] = useState("");
+  const [selectCategory, setSelectCategory] = useState([]);
+  const [selectArea, setSelectArea] = useState([]);
+  const [selectPriceRange, setSelectPriceRange] = useState([]);
   const [isMapFull, setIsMapFull] = useState(false);
   const filteredRestaurants = restaurants.filter(res => {
     const matchesKeyword = res.name.toLowerCase().includes(keyWord.toLowerCase()) || res.summary?.toLowerCase().includes(keyWord.toLowerCase()) || res.description?.toLowerCase().includes(keyWord.toLowerCase()) || res.recommendedDishes?.some(dish => dish.toLowerCase().includes(keyWord.toLowerCase()));
-    const matchesCategory = (selectCategory === "" || selectCategory === "All") ? true : res.type === selectCategory;
-    const matchesArea = (selectArea === "" || selectArea === "All") ? true : res.area === selectArea;
-    const matchesPriceRange = (selectPriceRange === "" || selectPriceRange === "All") ? true : res.priceRange === selectPriceRange;
+    const matchesCategory = (selectCategory.length === 0 || selectCategory === "All") ? true : selectCategory.includes(res.type);
+    const matchesArea = (selectArea.length === 0 || selectArea === "All") ? true : selectArea.includes(res.area);
+    const matchesPriceRange = (selectPriceRange.length === 0 || selectPriceRange === "All") ? true : selectPriceRange.includes(res.priceRange);
     return matchesKeyword && matchesCategory && matchesArea && matchesPriceRange ;
   });
+
+  //clear all
+  const handleClearAll = () => {
+    setKeyword("");
+    setSelectCategory([]);
+    setSelectArea([]);
+    setSelectPriceRange([]);
+  }
   const categories = [...new Set(restaurants.map(res => res.type))].sort();
   const areas = [...new Set(restaurants.map(res => res.area))].sort();
   const priceRanges = [...new Set(restaurants.map(res => res.priceRange))].sort();
@@ -167,60 +175,117 @@ function App() {
 
     </div>
   </div>
+    {/*filter*/}
+ <div className="container-fluid mb-4">
+  <div className="row p-3 bg-light rounded shadow-sm align-items-end">
+    
+    {/* 1. 關鍵字搜尋框 */}
+    <div className="col-md-3 mb-3 mb-md-0">
+      <label className="form-label small fw-bold text-muted">關鍵字搜尋</label>
+      <input type="text" className="form-control" 
+              placeholder="搜尋餐廳、菜色..." 
+              value={keyWord} 
+              onChange={(e) => setKeyword(e.target.value)} />
+    </div>
 
-    <div className="container-fluid p-0">
-      <div className="row mb-4 p-3 bg-light rounded shadow-sm">
-        <div className="col-md-2">
-          <input type="text" className="form-control" 
-                  placeholder="搜尋餐廳名稱、簡介、推薦菜色..." 
-                  value={keyWord} 
-                  onChange={(e) => setKeyword(e.target.value)} />
-        </div>
-
-      <div className="col-md-2">
-          
-          <select
-            className="form-select border-primary-subtle shadow-sm"
-            value={selectCategory}
-            onChange={(e) => setSelectCategory(e.target.value)}
-          > 
-          <option value="All">--- 選擇餐廳類別 ---</option>
-            {categories.map(cat => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
-          </select>
-      </div>
-      <div className="col-md-2">
-          <select
-            className="form-select border-primary-subtle shadow-sm"
-            value={selectArea}
-            onChange={(e) => setSelectArea(e.target.value)}
-          >
-            <option value="All">--- 選擇地區 ---</option>
-            {areas.map(area => (
-              <option key={area} value={area}>{area}</option>
-            ))}
-          </select>
-      </div>
-      <div className="col-md-2">
-            <select
-              className="form-select border-primary-subtle shadow-sm"
-              value={selectPriceRange}
-              onChange={(e) => setSelectPriceRange(e.target.value)}
-            >
-              <option value="All">--- 選擇價位 ---</option>
-              {priceRanges.map(price =>(
-                <option key={price} value={price}>{price}</option>
-              ))
-
-              }
-              
-            </select>
-              
+    {/* 2. 餐廳類別下拉勾選 */}
+    <div className="col-md-2 mb-3 mb-md-0">
+      <label className="form-label small fw-bold text-muted">餐廳類別</label>
+      <div className="dropdown">
+        <button className="btn btn-white w-100 text-start border shadow-sm dropdown-toggle d-flex justify-content-between align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <span className="text-truncate">
+            {selectCategory.length === 0 ? "--- 選擇類別 ---" : `已選 (${selectCategory.length})`}
+          </span>
+        </button>
+        <ul className="dropdown-menu p-2 w-100" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+          {categories.map(cat => (
+            <li key={cat} className="dropdown-item p-1">
+              <div className="form-check m-0">
+                <input className="form-check-input" type="checkbox" id={`dd-cat-${cat}`} value={cat}
+                  checked={selectCategory.includes(cat)}
+                  onChange={(e) => {
+                    const { value, checked } = e.target;
+                    setSelectCategory(checked ? [...selectCategory, value] : selectCategory.filter(item => item !== value));
+                  }}
+                />
+                <label className="form-check-label small w-100 ms-1" htmlFor={`dd-cat-${cat}`}>{cat}</label>
+              </div>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
 
+    {/* 3. 地區下拉勾選 */}
+    <div className="col-md-2 mb-3 mb-md-0">
+      <label className="form-label small fw-bold text-muted">選擇地區</label>
+      <div className="dropdown">
+        <button className="btn btn-white w-100 text-start border shadow-sm dropdown-toggle d-flex justify-content-between align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <span className="text-truncate">
+            {selectArea.length === 0 ? "--- 選擇地區 ---" : `已選 (${selectArea.length})`}
+          </span>
+        </button>
+        <ul className="dropdown-menu p-2 w-100" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+          {areas.map(area => (
+            <li key={area} className="dropdown-item p-1">
+              <div className="form-check m-0">
+                <input className="form-check-input" type="checkbox" id={`dd-area-${area}`} value={area}
+                  checked={selectArea.includes(area)}
+                  onChange={(e) => {
+                    const { value, checked } = e.target;
+                    setSelectArea(checked ? [...selectArea, value] : selectArea.filter(item => item !== value));
+                  }}
+                />
+                <label className="form-check-label small w-100 ms-1" htmlFor={`dd-area-${area}`}>{area}</label>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
+
+    {/* 4. 價位下拉勾選 */}
+    <div className="col-md-2 mb-3 mb-md-0">
+      <label className="form-label small fw-bold text-muted">價位區間</label>
+      <div className="dropdown">
+        <button className="btn btn-white w-100 text-start border shadow-sm dropdown-toggle d-flex justify-content-between align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <span className="text-truncate">
+            {selectPriceRange.length === 0 ? "--- 選擇價位 ---" : `已選 (${selectPriceRange.length})`}
+          </span>
+        </button>
+        <ul className="dropdown-menu p-2 w-100" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+          {priceRanges.map(price => (
+            <li key={price} className="dropdown-item p-1">
+              <div className="form-check m-0">
+                <input className="form-check-input" type="checkbox" id={`dd-price-${price}`} value={price}
+                  checked={selectPriceRange.includes(price)}
+                  onChange={(e) => {
+                    const { value, checked } = e.target;
+                    setSelectPriceRange(checked ? [...selectPriceRange, value] : selectPriceRange.filter(item => item !== value));
+                  }}
+                />
+                <label className="form-check-label small w-100 ms-1" htmlFor={`dd-price-${price}`}>{price}</label>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+
+    {/* 5. 🧹 一鍵清除按鈕 (佔 3 格，靠右對齊) */}
+    <div className="col-md-3 text-end">
+      <button 
+        type="button" 
+        className="btn btn-outline-danger shadow-sm w-100 d-flex align-items-center justify-content-center gap-1"
+        onClick={handleClearAll}
+        disabled={!keyWord && selectCategory.length === 0 && selectArea.length === 0 && selectPriceRange.length === 0}
+      >
+        <i className="fa-solid fa-trash-can" style={{ fontSize: '0.9rem' }}></i> 清除所有篩選
+      </button>
+    </div>
+
+  </div>
+</div>
       <div className="row"> 
         
         {/* left hand side - restaurant list */}
