@@ -7,6 +7,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useMap } from 'react-leaflet'; 
 import.meta.env.VITE_API_URL
+import Select from  "react-select"
 
 // 修正 Leaflet 預設圖標（icon）在 React/Vite 中顯示不出來的小問題
 import L from 'leaflet';
@@ -112,15 +113,15 @@ function App() {
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
   const [restaurantDetail, setRestaurantDetail] = useState(null);
   const [keyWord, setKeyword] = useState("");
-  const [selectCategory, setSelectCategory] = useState("");
-  const [selectArea, setSelectArea] = useState("");
-  const [selectPriceRange, setSelectPriceRange] = useState("");
+  const [selectCategory, setSelectCategory] = useState([]);
+  const [selectArea, setSelectArea] = useState([]);
+  const [selectPriceRange, setSelectPriceRange] = useState([]);
   const [isMapFull, setIsMapFull] = useState(false);
   const filteredRestaurants = restaurants.filter(res => {
     const matchesKeyword = res.name.toLowerCase().includes(keyWord.toLowerCase()) || res.summary?.toLowerCase().includes(keyWord.toLowerCase()) || res.description?.toLowerCase().includes(keyWord.toLowerCase()) || res.recommendedDishes?.some(dish => dish.toLowerCase().includes(keyWord.toLowerCase()));
-    const matchesCategory = (selectCategory === "" || selectCategory === "All") ? true : res.type === selectCategory;
-    const matchesArea = (selectArea === "" || selectArea === "All") ? true : res.area === selectArea;
-    const matchesPriceRange = (selectPriceRange === "" || selectPriceRange === "All") ? true : res.priceRange === selectPriceRange;
+    const matchesCategory = (selectCategory.length === 0 || selectCategory === "All") ? true : selectCategory.includes(res.type);
+    const matchesArea = (selectArea.length === 0 || selectArea === "All") ? true : selectArea.includes(res.area);
+    const matchesPriceRange = (selectPriceRange.length === 0 || selectPriceRange === "All") ? true : selectPriceRange.includes(res.priceRange);
     return matchesKeyword && matchesCategory && matchesArea && matchesPriceRange ;
   });
   const categories = [...new Set(restaurants.map(res => res.type))].sort();
@@ -167,60 +168,108 @@ function App() {
 
     </div>
   </div>
+    {/*filter*/}
+    <div className="container-fluid mb-4">
+  <div className="row p-3 bg-light rounded shadow-sm align-items-center">
+    
+    {/* 1. 關鍵字搜尋框 (佔 2 格) */}
+    <div className="col-md-2 mb-3 mb-md-0">
+      <label className="form-label small fw-bold text-muted">關鍵字搜尋</label>
+      <input type="text" className="form-control" 
+              placeholder="搜尋餐廳、菜色..." 
+              value={keyWord} 
+              onChange={(e) => setKeyword(e.target.value)} />
+    </div>
 
-    <div className="container-fluid p-0">
-      <div className="row mb-4 p-3 bg-light rounded shadow-sm">
-        <div className="col-md-2">
-          <input type="text" className="form-control" 
-                  placeholder="搜尋餐廳名稱、簡介、推薦菜色..." 
-                  value={keyWord} 
-                  onChange={(e) => setKeyword(e.target.value)} />
-        </div>
-
-      <div className="col-md-2">
-          
-          <select
-            className="form-select border-primary-subtle shadow-sm"
-            value={selectCategory}
-            onChange={(e) => setSelectCategory(e.target.value)}
-          > 
-          <option value="All">--- 選擇餐廳類別 ---</option>
-            {categories.map(cat => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
-          </select>
-      </div>
-      <div className="col-md-2">
-          <select
-            className="form-select border-primary-subtle shadow-sm"
-            value={selectArea}
-            onChange={(e) => setSelectArea(e.target.value)}
-          >
-            <option value="All">--- 選擇地區 ---</option>
-            {areas.map(area => (
-              <option key={area} value={area}>{area}</option>
-            ))}
-          </select>
-      </div>
-      <div className="col-md-2">
-            <select
-              className="form-select border-primary-subtle shadow-sm"
-              value={selectPriceRange}
-              onChange={(e) => setSelectPriceRange(e.target.value)}
-            >
-              <option value="All">--- 選擇價位 ---</option>
-              {priceRanges.map(price =>(
-                <option key={price} value={price}>{price}</option>
-              ))
-
-              }
-              
-            </select>
-              
+    {/* 2. 餐廳類別多選 Checkbox (佔 4 格) */}
+    <div className="col-md-4 mb-3 mb-md-0">
+      <label className="form-label small fw-bold text-muted">餐廳類別 (可多選)</label>
+      <div className="d-flex flex-wrap gap-2 p-2 bg-white rounded border shadow-sm" style={{ maxHeight: '100px', overflowY: 'auto' }}>
+        {categories.map(cat => (
+          <div key={cat} className="form-check form-check-inline m-0">
+            <input
+              className="form-check-input"
+              type="checkbox"
+              id={`check-cat-${cat}`}
+              value={cat}
+              checked={selectCategory.includes(cat)}
+              onChange={(e) => {
+                const { value, checked } = e.target;
+                if (checked) {
+                  setSelectCategory([...selectCategory, value]);
+                } else {
+                  setSelectCategory(selectCategory.filter(item => item !== value));
+                }
+              }}
+            />
+            <label className="form-check-label small ms-1" htmlFor={`check-cat-${cat}`}>
+              {cat}
+            </label>
+          </div>
+        ))}
       </div>
     </div>
 
+    {/* 3. 地區多選 Checkbox (佔 3 格) */}
+    <div className="col-md-3 mb-3 mb-md-0">
+      <label className="form-label small fw-bold text-muted">選擇地區 (可多選)</label>
+      <div className="d-flex flex-wrap gap-2 p-2 bg-white rounded border shadow-sm" style={{ maxHeight: '100px', overflowY: 'auto' }}>
+        {areas.map(area => (
+          <div key={area} className="form-check form-check-inline m-0">
+            <input
+              className="form-check-input"
+              type="checkbox"
+              id={`check-area-${area}`}
+              value={area}
+              checked={selectArea.includes(area)}
+              onChange={(e) => {
+                const { value, checked } = e.target;
+                if (checked) {
+                  setSelectArea([...selectArea, value]);
+                } else {
+                  setSelectArea(selectArea.filter(item => item !== value));
+                }
+              }}
+            />
+            <label className="form-check-label small ms-1" htmlFor={`check-area-${area}`}>
+              {area}
+            </label>
+          </div>
+        ))}
+      </div>
     </div>
+
+    {/* 4. 價位多選 Checkbox (佔 3 格) */}
+    <div className="col-md-3">
+      <label className="form-label small fw-bold text-muted">價位區間 (可多選)</label>
+      <div className="d-flex flex-wrap gap-2 p-2 bg-white rounded border shadow-sm" style={{ maxHeight: '100px', overflowY: 'auto' }}>
+        {priceRanges.map(price => (
+          <div key={price} className="form-check form-check-inline m-0">
+            <input
+              className="form-check-input"
+              type="checkbox"
+              id={`check-price-${price}`}
+              value={price}
+              checked={selectPriceRange.includes(price)}
+              onChange={(e) => {
+                const { value, checked } = e.target;
+                if (checked) {
+                  setSelectPriceRange([...selectPriceRange, value]);
+                } else {
+                  setSelectPriceRange(selectPriceRange.filter(item => item !== value));
+                }
+              }}
+            />
+            <label className="form-check-label small ms-1" htmlFor={`check-price-${price}`}>
+              {price}
+            </label>
+          </div>
+        ))}
+      </div>
+    </div>
+
+  </div>
+</div>
       <div className="row"> 
         
         {/* left hand side - restaurant list */}
