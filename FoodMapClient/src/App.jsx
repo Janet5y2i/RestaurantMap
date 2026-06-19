@@ -7,7 +7,6 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useMap } from 'react-leaflet'; 
 import.meta.env.VITE_API_URL
-import Select from  "react-select"
 
 // 修正 Leaflet 預設圖標（icon）在 React/Vite 中顯示不出來的小問題
 import L from 'leaflet';
