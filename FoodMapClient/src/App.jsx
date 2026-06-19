@@ -123,6 +123,14 @@ function App() {
     const matchesPriceRange = (selectPriceRange.length === 0 || selectPriceRange === "All") ? true : selectPriceRange.includes(res.priceRange);
     return matchesKeyword && matchesCategory && matchesArea && matchesPriceRange ;
   });
+
+  //clear all
+  const handleClearAll = () => {
+    setKeyword("");
+    setSelectCategory([]);
+    setSelectArea([]);
+    setSelectPriceRange([]);
+  }
   const categories = [...new Set(restaurants.map(res => res.type))].sort();
   const areas = [...new Set(restaurants.map(res => res.area))].sort();
   const priceRanges = [...new Set(restaurants.map(res => res.priceRange))].sort();
@@ -168,11 +176,11 @@ function App() {
     </div>
   </div>
     {/*filter*/}
-    <div className="container-fluid mb-4">
-  <div className="row p-3 bg-light rounded shadow-sm align-items-center">
+ <div className="container-fluid mb-4">
+  <div className="row p-3 bg-light rounded shadow-sm align-items-end">
     
-    {/* 1. 關鍵字搜尋框 (佔 2 格) */}
-    <div className="col-md-2 mb-3 mb-md-0">
+    {/* 1. 關鍵字搜尋框 */}
+    <div className="col-md-3 mb-3 mb-md-0">
       <label className="form-label small fw-bold text-muted">關鍵字搜尋</label>
       <input type="text" className="form-control" 
               placeholder="搜尋餐廳、菜色..." 
@@ -180,91 +188,101 @@ function App() {
               onChange={(e) => setKeyword(e.target.value)} />
     </div>
 
-    {/* 2. 餐廳類別多選 Checkbox (佔 4 格) */}
-    <div className="col-md-4 mb-3 mb-md-0">
-      <label className="form-label small fw-bold text-muted">餐廳類別 (可多選)</label>
-      <div className="d-flex flex-wrap gap-2 p-2 bg-white rounded border shadow-sm" style={{ maxHeight: '100px', overflowY: 'auto' }}>
-        {categories.map(cat => (
-          <div key={cat} className="form-check form-check-inline m-0">
-            <input
-              className="form-check-input"
-              type="checkbox"
-              id={`check-cat-${cat}`}
-              value={cat}
-              checked={selectCategory.includes(cat)}
-              onChange={(e) => {
-                const { value, checked } = e.target;
-                if (checked) {
-                  setSelectCategory([...selectCategory, value]);
-                } else {
-                  setSelectCategory(selectCategory.filter(item => item !== value));
-                }
-              }}
-            />
-            <label className="form-check-label small ms-1" htmlFor={`check-cat-${cat}`}>
-              {cat}
-            </label>
-          </div>
-        ))}
+    {/* 2. 餐廳類別下拉勾選 */}
+    <div className="col-md-2 mb-3 mb-md-0">
+      <label className="form-label small fw-bold text-muted">餐廳類別</label>
+      <div className="dropdown">
+        <button className="btn btn-white w-100 text-start border shadow-sm dropdown-toggle d-flex justify-content-between align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <span className="text-truncate">
+            {selectCategory.length === 0 ? "--- 選擇類別 ---" : `已選 (${selectCategory.length})`}
+          </span>
+        </button>
+        <ul className="dropdown-menu p-2 w-100" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+          {categories.map(cat => (
+            <li key={cat} className="dropdown-item p-1">
+              <div className="form-check m-0">
+                <input className="form-check-input" type="checkbox" id={`dd-cat-${cat}`} value={cat}
+                  checked={selectCategory.includes(cat)}
+                  onChange={(e) => {
+                    const { value, checked } = e.target;
+                    setSelectCategory(checked ? [...selectCategory, value] : selectCategory.filter(item => item !== value));
+                  }}
+                />
+                <label className="form-check-label small w-100 ms-1" htmlFor={`dd-cat-${cat}`}>{cat}</label>
+              </div>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
 
-    {/* 3. 地區多選 Checkbox (佔 3 格) */}
-    <div className="col-md-3 mb-3 mb-md-0">
-      <label className="form-label small fw-bold text-muted">選擇地區 (可多選)</label>
-      <div className="d-flex flex-wrap gap-2 p-2 bg-white rounded border shadow-sm" style={{ maxHeight: '100px', overflowY: 'auto' }}>
-        {areas.map(area => (
-          <div key={area} className="form-check form-check-inline m-0">
-            <input
-              className="form-check-input"
-              type="checkbox"
-              id={`check-area-${area}`}
-              value={area}
-              checked={selectArea.includes(area)}
-              onChange={(e) => {
-                const { value, checked } = e.target;
-                if (checked) {
-                  setSelectArea([...selectArea, value]);
-                } else {
-                  setSelectArea(selectArea.filter(item => item !== value));
-                }
-              }}
-            />
-            <label className="form-check-label small ms-1" htmlFor={`check-area-${area}`}>
-              {area}
-            </label>
-          </div>
-        ))}
+    {/* 3. 地區下拉勾選 */}
+    <div className="col-md-2 mb-3 mb-md-0">
+      <label className="form-label small fw-bold text-muted">選擇地區</label>
+      <div className="dropdown">
+        <button className="btn btn-white w-100 text-start border shadow-sm dropdown-toggle d-flex justify-content-between align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <span className="text-truncate">
+            {selectArea.length === 0 ? "--- 選擇地區 ---" : `已選 (${selectArea.length})`}
+          </span>
+        </button>
+        <ul className="dropdown-menu p-2 w-100" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+          {areas.map(area => (
+            <li key={area} className="dropdown-item p-1">
+              <div className="form-check m-0">
+                <input className="form-check-input" type="checkbox" id={`dd-area-${area}`} value={area}
+                  checked={selectArea.includes(area)}
+                  onChange={(e) => {
+                    const { value, checked } = e.target;
+                    setSelectArea(checked ? [...selectArea, value] : selectArea.filter(item => item !== value));
+                  }}
+                />
+                <label className="form-check-label small w-100 ms-1" htmlFor={`dd-area-${area}`}>{area}</label>
+              </div>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
 
-    {/* 4. 價位多選 Checkbox (佔 3 格) */}
-    <div className="col-md-3">
-      <label className="form-label small fw-bold text-muted">價位區間 (可多選)</label>
-      <div className="d-flex flex-wrap gap-2 p-2 bg-white rounded border shadow-sm" style={{ maxHeight: '100px', overflowY: 'auto' }}>
-        {priceRanges.map(price => (
-          <div key={price} className="form-check form-check-inline m-0">
-            <input
-              className="form-check-input"
-              type="checkbox"
-              id={`check-price-${price}`}
-              value={price}
-              checked={selectPriceRange.includes(price)}
-              onChange={(e) => {
-                const { value, checked } = e.target;
-                if (checked) {
-                  setSelectPriceRange([...selectPriceRange, value]);
-                } else {
-                  setSelectPriceRange(selectPriceRange.filter(item => item !== value));
-                }
-              }}
-            />
-            <label className="form-check-label small ms-1" htmlFor={`check-price-${price}`}>
-              {price}
-            </label>
-          </div>
-        ))}
+    {/* 4. 價位下拉勾選 */}
+    <div className="col-md-2 mb-3 mb-md-0">
+      <label className="form-label small fw-bold text-muted">價位區間</label>
+      <div className="dropdown">
+        <button className="btn btn-white w-100 text-start border shadow-sm dropdown-toggle d-flex justify-content-between align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <span className="text-truncate">
+            {selectPriceRange.length === 0 ? "--- 選擇價位 ---" : `已選 (${selectPriceRange.length})`}
+          </span>
+        </button>
+        <ul className="dropdown-menu p-2 w-100" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+          {priceRanges.map(price => (
+            <li key={price} className="dropdown-item p-1">
+              <div className="form-check m-0">
+                <input className="form-check-input" type="checkbox" id={`dd-price-${price}`} value={price}
+                  checked={selectPriceRange.includes(price)}
+                  onChange={(e) => {
+                    const { value, checked } = e.target;
+                    setSelectPriceRange(checked ? [...selectPriceRange, value] : selectPriceRange.filter(item => item !== value));
+                  }}
+                />
+                <label className="form-check-label small w-100 ms-1" htmlFor={`dd-price-${price}`}>{price}</label>
+              </div>
+            </li>
+          ))}
+        </ul>
       </div>
+    </div>
+
+    {/* 5. 🧹 一鍵清除按鈕 (佔 3 格，靠右對齊) */}
+    <div className="col-md-3 text-end">
+      <button 
+        type="button" 
+        className="btn btn-outline-danger shadow-sm w-100 d-flex align-items-center justify-content-center gap-1"
+        onClick={handleClearAll}
+        // 當沒有任何篩選條件時，自動把按鈕變成禁用狀態（Disabled）
+        disabled={!keyWord && selectCategory.length === 0 && selectArea.length === 0 && selectPriceRange.length === 0}
+      >
+        <i className="fa-solid fa-trash-can"></i> 清除所有篩選
+      </button>
     </div>
 
   </div>
