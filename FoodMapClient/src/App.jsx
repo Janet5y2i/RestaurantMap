@@ -278,10 +278,9 @@ function App() {
         type="button" 
         className="btn btn-outline-danger shadow-sm w-100 d-flex align-items-center justify-content-center gap-1"
         onClick={handleClearAll}
-        // 當沒有任何篩選條件時，自動把按鈕變成禁用狀態（Disabled）
         disabled={!keyWord && selectCategory.length === 0 && selectArea.length === 0 && selectPriceRange.length === 0}
       >
-        <i className="fa-solid fa-trash-can"></i> 清除所有篩選
+        <i className="fa-solid fa-trash-can" style={{ fontSize: '0.9rem' }}></i> 清除所有篩選
       </button>
     </div>
 
